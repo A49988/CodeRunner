@@ -1,9 +1,0 @@
-.gradle/
-build/
-.idea/
-*.iml
-out/
-.DS_Store
-request/out.txt
-request/err.txt
-request/exit.txt
