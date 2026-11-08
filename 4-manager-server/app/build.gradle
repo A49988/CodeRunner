@@ -31,6 +31,8 @@ dependencies {
     implementation "io.grpc:grpc-netty-shaded:${grpcVersion}"
     implementation "io.grpc:grpc-protobuf:${grpcVersion}"
     implementation "io.grpc:grpc-stub:${grpcVersion}"
+    // Cliente Java para Redis (usado pelo Client e partilhado com o RunServer).
+    implementation "redis.clients:jedis:5.2.0"
     compileOnly 'org.apache.tomcat:annotations-api:6.0.53'
 }
 
@@ -64,4 +66,13 @@ tasks.named('test') {
 tasks.register('testClient', JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
     mainClass = 'manager.server.TestClient'
+}
+
+// Executa o cliente CodeRunner.
+// Exemplo: gradlew.bat runClient --args="submit localhost 50051 localhost 6379 programa.py input.txt"
+tasks.register('runClient', JavaExec) {
+    group = 'application'
+    description = 'Executa o cliente CodeRunner'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'manager.server.Client'
 }
