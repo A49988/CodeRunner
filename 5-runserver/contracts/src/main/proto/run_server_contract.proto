@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "servicestubs.runserver";
+
+package grpcservice_runserver;
+
+service RunService {
+
+  // Cliente envia o programa e recebe o UUID
+  rpc submeter(stream SubmissionChunk) returns (RequestId);
+
+  // Cliente consulta o resultado
+  rpc getresult(RequestId) returns (stream ResultChunk);
+}
+
+message SubmissionChunk {
+
+  enum FileType {
+    PROGRAM = 0;
+    STDIN = 1;
+  }
+
+  FileType type = 1;
+  bytes data = 2;
+}
+
+message RequestId {
+  string id = 1;
+}
+
+message ResultChunk {
+
+  string state = 1;
+
+  // stdout
+  bytes result = 2;
+
+  // stderr
+  bytes error = 3;
+
+  // Localização do RunServer responsável
+  string serverIp = 4;
+  int32 serverPort = 5;
+}

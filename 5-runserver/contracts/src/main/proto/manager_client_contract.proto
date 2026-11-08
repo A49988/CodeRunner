@@ -1,0 +1,10 @@
+syntax = "proto3";
+option java_multiple_files = true;
+option java_package = "servicestubs.managerclient";
+package grpcservice_manager_client;
+
+service Service {
+  rpc getServer(ProtoVoid) returns (ServerId);
+}
+message ProtoVoid {}
+message ServerId { string ip = 1; int32 port = 2; }
