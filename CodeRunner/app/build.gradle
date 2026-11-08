@@ -8,6 +8,7 @@
 plugins {
     // Apply the application plugin to add support for building a CLI application in Java.
     id 'application'
+    id 'java'
     id 'com.google.protobuf' version '0.9.5'
 }
 
@@ -34,6 +35,10 @@ dependencies {
     // Cliente Java para Redis (usado pelo Client e partilhado com o RunServer).
     implementation "redis.clients:jedis:5.2.0"
     compileOnly 'org.apache.tomcat:annotations-api:6.0.53'
+
+    // Docker
+    implementation 'com.github.docker-java:docker-java-core:3.4.0'
+    implementation 'com.github.docker-java:docker-java-transport-httpclient5:3.4.0'
 }
 
 sourceSets {
@@ -69,10 +74,17 @@ tasks.register('testClient', JavaExec) {
 }
 
 // Executa o cliente CodeRunner.
-// Exemplo: gradlew.bat runClient --args="submit localhost 50051 localhost 6379 programa.py input.txt"
 tasks.register('runClient', JavaExec) {
     group = 'application'
     description = 'Executa o cliente CodeRunner'
     classpath = sourceSets.main.runtimeClasspath
-    mainClass = 'manager.server.Client'
+    mainClass = 'client.Client'
+}
+
+// Executa um RunServer.
+tasks.register('runRunServer', JavaExec) {
+    group = 'application'
+    description = 'Executa um RunServer'
+    classpath = sourceSets.main.runtimeClasspath
+    mainClass = 'coderunner.runserver.RunServer'
 }
