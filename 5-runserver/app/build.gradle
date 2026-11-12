@@ -1,0 +1,79 @@
+
+plugins {
+    id 'application'
+    id 'com.google.protobuf' version '0.9.5'
+}
+
+repositories {
+    mavenCentral()
+}
+
+def grpcVersion = '1.68.1'
+def protobufVersion = '3.25.5'
+
+dependencies {
+    testImplementation libs.junit.jupiter
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    implementation libs.guava
+
+    // gRPC
+    implementation "io.grpc:grpc-netty-shaded:${grpcVersion}"
+    implementation "io.grpc:grpc-protobuf:${grpcVersion}"
+    implementation "io.grpc:grpc-stub:${grpcVersion}"
+
+    // Protobuf
+    implementation "com.google.protobuf:protobuf-java:${protobufVersion}"
+
+    // Redis
+    implementation 'redis.clients:jedis:5.2.0'
+
+    // Docker
+    implementation 'com.github.docker-java:docker-java-core:3.4.0'
+    implementation 'com.github.docker-java:docker-java-transport-httpclient5:3.4.0'
+
+    compileOnly 'org.apache.tomcat:annotations-api:6.0.53'
+}
+
+sourceSets {
+    main {
+        proto {
+            srcDir '../contracts/src/main/proto'
+        }
+    }
+}
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:${protobufVersion}"
+    }
+
+    plugins {
+        grpc {
+            artifact = "io.grpc:protoc-gen-grpc-java:${grpcVersion}"
+        }
+    }
+
+    generateProtoTasks {
+        all()*.plugins {
+            grpc {}
+        }
+    }
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+group = "isel.grpc"
+version = "1.0"
+
+application {
+    mainClass = 'grpcrunserverapp.RunServer'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
