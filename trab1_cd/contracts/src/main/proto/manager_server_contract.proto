@@ -3,8 +3,40 @@ option java_multiple_files = true;
 option java_package = "servicestubs.managerserver";
 package grpcservice_manager_server;
 
+// RunServer -> ManagerServer
+//
+// Este contrato permite que os RunServers se registem
+// no ManagerServer quando ficam disponíveis.
+//
+// O RunServer envia o seu endereço IP e porto.
+// O ManagerServer regista essa informação para que,
+// posteriormente, possa encaminhar clientes para esse servidor.
+//
+// Após o registo, o ManagerServer devolve o endereço
+// do Redis ao RunServer.
 service RegisterService {
+
+  // Pedido: RunServer -> ManagerServer
+  // Envia o endereço IP e o porto do RunServer que pretende
+  // registar-se.
+  //
+  // Resposta: ManagerServer -> RunServer
+  // Confirma o registo através da devolução do endereço
+  // IP e porto do serviço Redis.
   rpc register(ServerId) returns (RedisId);
 }
-message ServerId { string ip = 1; int32 port = 2; }
-message RedisId  { string ip = 1; int32 port = 2; }
+
+// Dados enviados pelo RunServer ao ManagerServer
+// durante o processo de registo.
+message ServerId {
+  string ip = 1;    // Endereço IP onde o RunServer está disponível.
+  int32 port = 2;   // Porto onde o RunServer aceita ligações.
+}
+
+// Dados devolvidos pelo ManagerServer ao RunServer.
+// Permitem ao RunServer conhecer a localização do Redis
+// utilizado pelo sistema para armazenar informação.
+message RedisId {
+  string ip = 1;    // Endereço IP do serviço Redis.
+  int32 port = 2;   // Porto de acesso ao serviço Redis.
+}

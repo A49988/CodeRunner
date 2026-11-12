@@ -1,3 +1,4 @@
+
 syntax = "proto3";
 
 option java_multiple_files = true;
@@ -6,38 +7,95 @@ option java_outer_classname = "RunServerContract";
 
 package grpcservice_runserver;
 
+// Client -> RunServer
+//
+// Este contrato define as operações disponibilizadas pelo
+// RunServer aos clientes.
+//
+// O Client utiliza estas operações para submeter programas,
+// acompanhar a sua execução e obter os resultados produzidos.
+// Cada execução é identificada por um execution_id, devolvido
+// pelo RunServer no momento da submissão.
 service RunServerService {
-  rpc submitProgram(stream SubmitProgramRequest) returns (SubmitProgramResponse);
-  rpc getStatus(GetStatusRequest) returns (GetStatusResponse);
-  rpc getResult(GetResultRequest) returns (stream GetResultResponse);
+
+  // Pedido: Client -> RunServer
+  // O Client envia o programa e os dados de entrada através
+  // de um stream de mensagens SubmitProgramRequest.
+  // Esta abordagem permite dividir o conteúdo em vários blocos.
+  //
+  // Resposta: RunServer -> Client
+  // Depois de receber a submissão, o RunServer devolve um
+  // identificador único (execution_id), que permite acompanhar
+  // posteriormente a execução.
+  rpc submitProgram(stream SubmitProgramRequest)
+      returns (SubmitProgramResponse);
+
+  // Pedido: Client -> RunServer
+  // O Client envia o execution_id da execução que pretende
+  // consultar.
+  //
+  // Resposta: RunServer -> Client
+  // O RunServer devolve o estado atual dessa execução,
+  // permitindo ao Client acompanhar o seu progresso.
+  rpc getStatus(GetStatusRequest)
+      returns (GetStatusResponse);
+
+  // Pedido: Client -> RunServer
+  // O Client envia o execution_id da execução cujos resultados
+  // pretende obter.
+  //
+  // Resposta: RunServer -> Client
+  // O RunServer transmite os resultados através de um stream
+  // de mensagens GetResultResponse, incluindo a saída standard,
+  // a saída de erro, o código de saída e a indicação de conclusão.
+  rpc getResult(GetResultRequest)
+      returns (stream GetResultResponse);
 }
 
+// Mensagem enviada pelo Client ao RunServer durante
+// a submissão de um programa.
+//
+// O conteúdo pode ser dividido por várias mensagens,
+// permitindo transmitir ficheiros de maiores dimensões.
 message SubmitProgramRequest {
-  bytes data = 1;
-  bytes stdin = 2;
-  bool is_last = 3;
+  bytes data = 1;      // Bloco de dados correspondente ao programa.
+  bytes stdin = 2;     // Dados de entrada a fornecer ao programa.
+  bool is_last = 3;    // Indica se este é o último bloco enviado.
 }
 
+// Resposta do RunServer ao Client após a submissão.
+// Contém o identificador único atribuído à execução.
 message SubmitProgramResponse {
   string execution_id = 1;
 }
 
+// Pedido do Client ao RunServer para consultar
+// o estado de uma execução específica.
 message GetStatusRequest {
-  string execution_id = 1;
+  string execution_id = 1;  // Identificador da execução pretendida.
 }
 
+// Resposta do RunServer ao Client com o estado atual
+// da execução identificada no pedido.
 message GetStatusResponse {
-  string status = 1;
+  string status = 1;  // Estado atual da execução.
 }
 
+// Pedido do Client ao RunServer para obter os resultados
+// de uma execução específica.
 message GetResultRequest {
-  string execution_id = 1;
+  string execution_id = 1;  // Identificador da execução pretendida.
 }
 
+// Mensagem enviada pelo RunServer ao Client durante
+// a transmissão dos resultados.
+//
+// A resposta é transmitida em stream, podendo ser constituída
+// por várias mensagens até à conclusão da transmissão.
 message GetResultResponse {
-  string status = 1;
-  bytes stdout = 2;
-  bytes stderr = 3;
-  int32 exit_code = 4;
-  bool finished = 5;
+  string status = 1;      // Estado da execução.
+  bytes stdout = 2;       // Dados produzidos na saída standard.
+  bytes stderr = 3;       // Dados produzidos na saída de erro.
+  int32 exit_code = 4;    // Código de saída do processo executado.
+  bool finished = 5;      // Indica se a execução já terminou.
 }

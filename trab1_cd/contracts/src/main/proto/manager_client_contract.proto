@@ -3,8 +3,33 @@ option java_multiple_files = true;
 option java_package = "servicestubs.managerclient";
 package grpcservice_manager_client;
 
+// Client -> ManagerServer
+//
+// O Client contacta o ManagerServer para obter o endereço
+// de um RunServer disponível.
+//
+// O ManagerServer recebe o pedido, seleciona um RunServer
+// do seu registo e devolve o respetivo endereço IP e porto.
+
 service Service {
+
+  // Pedido: Client -> ManagerServer
+  // Solicita a identificação de um RunServer disponível.
+  //
+  // Resposta: ManagerServer -> Client
+  // Devolve o endereço IP e o porto do RunServer selecionado.
   rpc getServer(ProtoVoid) returns (ServerId);
 }
+
+// Mensagem vazia utilizada pelo Client na solicitação.
+// Não são necessários parâmetros, uma vez que a seleção
+// do RunServer é da responsabilidade do ManagerServer.
 message ProtoVoid {}
-message ServerId { string ip = 1; int32 port = 2; }
+
+// Resposta enviada pelo ManagerServer ao Client.
+// Identifica o RunServer para o qual o Client deverá
+// encaminhar posteriormente o pedido de execução.
+message ServerId {
+  string ip = 1;    // Endereço IP do RunServer selecionado.
+  int32 port = 2;   // Porto onde o RunServer aceita ligações.
+}

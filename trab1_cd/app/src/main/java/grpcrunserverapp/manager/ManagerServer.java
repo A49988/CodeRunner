@@ -12,7 +12,7 @@ import servicestubs.managerclient.ServiceGrpc;
 import servicestubs.managerserver.RedisId;
 import servicestubs.managerserver.RegisterServiceGrpc;
 
-public class App {
+public class ManagerServer {
 
     record Endpoint(String ip, int port) {}
 
